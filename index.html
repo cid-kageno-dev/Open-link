@@ -30,6 +30,26 @@ body{
     100%{background-position:0% 50%}
 }
 
+/* 🔙 BACK BUTTON */
+#nav-back{
+    position:fixed;
+    top:14px;
+    left:14px;
+    z-index:9999;
+    background:rgba(255,255,255,.15);
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.25);
+    color:white;
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    font-size:1.2rem;
+    cursor:pointer;
+    box-shadow:0 0 15px rgba(255,255,255,.25);
+    transition:.2s ease;
+}
+#nav-back:hover{transform:scale(1.1)}
+
 #entry-screen{
     position:fixed;inset:0;
     background:rgba(0,0,0,.92);
@@ -139,6 +159,8 @@ input,textarea{
 
 <body>
 
+<button id="nav-back" onclick="goBack()">←</button>
+
 <div class="background-gradient"></div>
 
 <div id="entry-screen">
@@ -197,7 +219,10 @@ const displayName = $("display-name"),
 function safe(v,max){return v?v.replace(/[<>]/g,"").slice(0,max):""}
 
 const p=new URLSearchParams(location.search);
-if(p.get("name")){displayName.textContent=safe(p.get("name"),30);entryTitle.textContent=`Surprise for ${displayName.textContent}!`}
+if(p.get("name")){
+    displayName.textContent=safe(p.get("name"),30);
+    entryTitle.textContent=`Surprise for ${displayName.textContent}!`;
+}
 if(p.get("note"))displayNote.textContent=safe(p.get("note"),300);
 if(p.get("emoji"))displayEmoji.textContent=safe(p.get("emoji"),4);
 
@@ -207,6 +232,17 @@ const sounds={
 };
 Object.values(sounds).forEach(s=>s.volume=.5);
 const vibrate=m=>navigator.vibrate&&navigator.vibrate(m);
+
+function goBack(){
+    if(history.length>1){
+        history.back();
+    }else{
+        location.href="/";
+    }
+}
+if(history.length<=1){
+    $("nav-back").style.display="none";
+}
 
 function startParty(){
     sounds.open.play().catch(()=>{});

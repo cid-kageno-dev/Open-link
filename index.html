@@ -1,53 +1,281 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Birthday Surprise Generator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Pacifico&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Birthday Surprise 🎉</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Pacifico&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+    margin:0;
+    background:#050505;
+    overflow:hidden;
+    font-family:Poppins,sans-serif;
+    color:#fff;
+    height:100vh;
+}
+.background-gradient{
+    position:fixed;inset:0;
+    background:linear-gradient(120deg,#1a2a6c,#b21f1f,#fdbb2d);
+    background-size:300% 300%;
+    animation:bgMove 15s ease infinite;
+    z-index:-1;
+}
+@keyframes bgMove{
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+
+#entry-screen{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,.92);
+    backdrop-filter:blur(10px);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    z-index:10;
+    transition:.7s ease;
+}
+.tap-btn{
+    background:linear-gradient(45deg,#ff00cc,#3333ff);
+    border:none;
+    padding:15px 40px;
+    border-radius:50px;
+    color:white;
+    font-size:1.1rem;
+    font-family:'Fredoka One';
+    box-shadow:0 0 25px rgba(255,0,204,.6);
+    cursor:pointer;
+}
+#main-stage{
+    display:none;
+    opacity:0;
+    height:100%;
+    width:100%;
+    justify-content:center;
+    align-items:center;
+    transition:.8s ease;
+}
+
+.card-container{
+    width:85vw;
+    max-width:320px;
+    aspect-ratio:3/4;
+    perspective:1500px;
+}
+.card{
+    width:100%;
+    height:100%;
+    transform-style:preserve-3d;
+    transition:.8s cubic-bezier(.175,.885,.32,1.275);
+}
+.card.is-flipped{transform:rotateY(180deg)}
+.card-face{
+    position:absolute;
+    inset:0;
+    border-radius:25px;
+    backface-visibility:hidden;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    text-align:center;
+}
+.front{
+    background:rgba(255,255,255,.12);
+    backdrop-filter:blur(15px);
+}
+.back{
+    background:#fff;
+    color:#333;
+    transform:rotateY(180deg);
+}
+
+#creator-ui{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,.85);
+    backdrop-filter:blur(20px);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:20;
+}
+.editor-card{
+    background:rgba(255,255,255,.1);
+    padding:25px;
+    border-radius:20px;
+    width:100%;
+    max-width:350px;
+}
+input,textarea{
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.2);
+    background:rgba(0,0,0,.3);
+    color:white;
+}
+.update-pulse{animation:pulse .4s}
+@keyframes pulse{
+    0%{transform:scale(1)}
+    50%{transform:scale(1.05)}
+    100%{transform:scale(1)}
+}
+
+#confetti{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+}
+</style>
 </head>
+
 <body>
 
-    <div class="background-gradient"></div>
+<div class="background-gradient"></div>
 
-    <div id="entry-screen">
-        <h1 id="entry-title">You have a surprise!</h1>
-        <button class="tap-btn" onclick="startParty()">Tap to Open</button>
-        <button id="creator-toggle" onclick="toggleEditor(true)">⚙️ Create Your Own Link</button>
+<div id="entry-screen">
+    <h2 id="entry-title">You have a surprise 🎁</h2>
+    <button class="tap-btn" onclick="startParty()">Tap to Open</button>
+    <button onclick="toggleEditor(true)" style="margin-top:25px;background:none;border:1px solid #444;color:#aaa;padding:8px 16px;border-radius:20px">
+        ⚙️ Create your own
+    </button>
+</div>
+
+<div id="creator-ui">
+    <div class="editor-card">
+        <h3 style="font-family:Fredoka One;color:#ff00cc;margin-top:0">Card Settings</h3>
+        <input id="edit-name" placeholder="Name" oninput="liveUpdate()">
+        <textarea id="edit-note" placeholder="Message" oninput="liveUpdate()"></textarea>
+        <input id="edit-emoji" placeholder="Emoji 🎂" oninput="liveUpdate()">
+        <button class="tap-btn" style="width:100%;margin-top:10px" onclick="copyLink()">Copy Magic Link</button>
+        <p id="copy-status" style="font-size:.8rem;color:#23d5ab"></p>
+        <button onclick="toggleEditor(false)" style="background:none;border:none;color:#aaa;margin-top:10px">Close</button>
     </div>
+</div>
 
-    <div id="creator-ui">
-        <div class="editor-card">
-            <h2>Card Settings</h2>
-            <input type="text" id="edit-name" placeholder="Friend's Name" oninput="liveUpdate()">
-            <textarea id="edit-note" placeholder="Personal Note..." oninput="liveUpdate()"></textarea>
-            <input type="text" id="edit-emoji" placeholder="Emoji (e.g. 🎁)" oninput="liveUpdate()">
-            
-            <button class="tap-btn share-btn" onclick="copyLink()">Copy Magic Link</button>
-            <button class="close-btn" onclick="toggleEditor(false)">Close Preview</button>
-            <p id="copy-status"></p>
-        </div>
-    </div>
-
-    <div id="main-stage">
-        <canvas id="confetti-canvas"></canvas>
-        <div class="card-container" onclick="flipCard()">
-            <div class="card" id="birthday-card">
-                <div class="card-face front">
-                    <div id="display-emoji">🎂</div>
-                    <h2 id="display-name">Friend</h2>
-                    <p class="hint">Tap to read note</p>
-                </div>
-                <div class="card-face back">
-                    <h2 class="back-title">To You!</h2>
-                    <p id="display-note">Wishing you the most amazing day ever!</p>
-                    <div class="emoji-footer">🥳 🎈</div>
-                </div>
+<div id="main-stage">
+    <canvas id="confetti"></canvas>
+    <div class="card-container" onclick="flipCard()">
+        <div class="card" id="birthday-card">
+            <div class="card-face front">
+                <div id="display-emoji" style="font-size:4.5rem">🎂</div>
+                <h2 id="display-name" style="font-family:Pacifico;margin:10px 0">Friend</h2>
+                <small>Tap to read</small>
+            </div>
+            <div class="card-face back">
+                <h3 style="color:#ff00cc;font-family:Fredoka One">To You 💖</h3>
+                <p id="display-note">Wishing you an amazing birthday!</p>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="script.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+
+const displayName = $("display-name"),
+      displayNote = $("display-note"),
+      displayEmoji = $("display-emoji"),
+      entryTitle = $("entry-title"),
+      entryScreen = $("entry-screen"),
+      mainStage = $("main-stage"),
+      birthdayCard = $("birthday-card"),
+      editName = $("edit-name"),
+      editNote = $("edit-note"),
+      editEmoji = $("edit-emoji"),
+      copyStatus = $("copy-status"),
+      confettiCanvas = $("confetti");
+
+function safe(v,max){return v?v.replace(/[<>]/g,"").slice(0,max):""}
+
+const p=new URLSearchParams(location.search);
+if(p.get("name")){displayName.textContent=safe(p.get("name"),30);entryTitle.textContent=`Surprise for ${displayName.textContent}!`}
+if(p.get("note"))displayNote.textContent=safe(p.get("note"),300);
+if(p.get("emoji"))displayEmoji.textContent=safe(p.get("emoji"),4);
+
+const sounds={
+    open:new Audio("https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"),
+    flip:new Audio("https://assets.mixkit.co/active_storage/sfx/1115/1115-preview.mp3")
+};
+Object.values(sounds).forEach(s=>s.volume=.5);
+const vibrate=m=>navigator.vibrate&&navigator.vibrate(m);
+
+function startParty(){
+    sounds.open.play().catch(()=>{});
+    vibrate(20);
+    entryScreen.style.opacity=0;
+    setTimeout(()=>{
+        entryScreen.style.display="none";
+        mainStage.style.display="flex";
+        requestAnimationFrame(()=>mainStage.style.opacity=1);
+        initConfetti();
+    },700);
+}
+function flipCard(){
+    birthdayCard.classList.toggle("is-flipped");
+    sounds.flip.currentTime=0;
+    sounds.flip.play().catch(()=>{});
+    vibrate(10);
+}
+
+function toggleEditor(s){
+    $("creator-ui").style.display=s?"flex":"none";
+    mainStage.style.display="flex";
+    mainStage.style.opacity=1;
+}
+
+function liveUpdate(){
+    displayName.textContent=safe(editName.value,30)||displayName.textContent;
+    displayNote.textContent=safe(editNote.value,300)||displayNote.textContent;
+    displayEmoji.textContent=safe(editEmoji.value,4)||displayEmoji.textContent;
+    birthdayCard.classList.remove("update-pulse");
+    void birthdayCard.offsetWidth;
+    birthdayCard.classList.add("update-pulse");
+}
+
+function copyLink(){
+    const link=`${location.origin}${location.pathname}?name=${encodeURIComponent(editName.value)}&note=${encodeURIComponent(editNote.value)}&emoji=${encodeURIComponent(editEmoji.value)}`;
+    navigator.clipboard.writeText(link);
+    copyStatus.textContent="✨ Link copied!";
+}
+
+/* CONFETTI */
+const ctx=confettiCanvas.getContext("2d");
+let parts=[],run=true;
+function initConfetti(){
+    resize();
+    parts=[...Array(80)].map(()=>({
+        x:Math.random()*innerWidth,
+        y:Math.random()*innerHeight-innerHeight,
+        v:Math.random()*2+1.5,
+        s:Math.random()*4+2,
+        c:`hsl(${Math.random()*360},70%,60%)`
+    }));
+    draw();
+}
+function resize(){confettiCanvas.width=innerWidth;confettiCanvas.height=innerHeight}
+window.addEventListener("resize",resize);
+document.addEventListener("visibilitychange",()=>run=!document.hidden);
+function draw(){
+    if(!run)return requestAnimationFrame(draw);
+    ctx.clearRect(0,0,innerWidth,innerHeight);
+    for(const p of parts){
+        p.y+=p.v;
+        if(p.y>innerHeight)p.y=-10;
+        ctx.fillStyle=p.c;
+        ctx.fillRect(p.x,p.y,p.s,p.s);
+    }
+    requestAnimationFrame(draw);
+}
+</script>
+
 </body>
 </html>

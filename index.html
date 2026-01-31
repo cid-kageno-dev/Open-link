@@ -3,119 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Birthday Surprise</title>
+    <title>Birthday Surprise Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Pacifico&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
-    <style>
-        /* --- 1. YOUR ORIGINAL STYLES --- */
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body {
-            margin: 0; padding: 0;
-            background: #050505;
-            overflow: hidden;
-            font-family: 'Poppins', sans-serif;
-            height: 100vh; width: 100vw;
-            color: white; perspective: 1000px;
-        }
-
-        .background-gradient {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(120deg, #1a2a6c, #b21f1f, #fdbb2d);
-            background-size: 300% 300%;
-            animation: gradientMove 15s ease infinite;
-            z-index: -2;
-        }
-        @keyframes gradientMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        #entry-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92);
-            backdrop-filter: blur(10px);
-            z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.8s ease, transform 0.8s ease;
-        }
-
-        .tap-btn {
-            background: linear-gradient(45deg, #ff00cc, #3333ff);
-            border: none; padding: 15px 40px; font-size: 1.2rem;
-            color: white; border-radius: 50px;
-            font-family: 'Fredoka One', cursive;
-            box-shadow: 0 0 25px rgba(255, 0, 204, 0.6);
-            cursor: pointer; text-transform: uppercase;
-        }
-
-        #main-stage {
-            opacity: 0; display: none;
-            height: 100%; width: 100%;
-            flex-direction: column; justify-content: center; align-items: center;
-            position: relative; transition: all 0.8s ease;
-        }
-
-        /* --- 3D CARD STYLES --- */
-        .card-container { width: 85vw; max-width: 320px; aspect-ratio: 3/4; perspective: 1500px; z-index: 10; }
-        .card { 
-            width: 100%; height: 100%; position: relative; transform-style: preserve-3d; 
-            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
-        .card.is-flipped { transform: rotateY(180deg); }
-        .card-face {
-            position: absolute; width: 100%; height: 100%;
-            backface-visibility: hidden; border-radius: 25px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            padding: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.2);
-        }
-        .front { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); }
-        .back { background: white; transform: rotateY(180deg); color: #333; overflow-y: auto; }
-
-        /* --- NEW: CREATOR UI STYLES --- */
-        #creator-ui {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
-            z-index: 10000; display: none; flex-direction: column;
-            align-items: center; justify-content: center; padding: 20px;
-        }
-        .editor-card {
-            background: rgba(255,255,255,0.1); padding: 25px; border-radius: 20px;
-            width: 100%; max-width: 350px; border: 1px solid rgba(255,255,255,0.2);
-        }
-        input, textarea {
-            width: 100%; margin: 10px 0; padding: 12px; border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white;
-        }
-        .update-pulse { animation: pulseAnim 0.4s ease; }
-        @keyframes pulseAnim { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        
-        #confetti-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="background-gradient"></div>
 
     <div id="entry-screen">
-        <h1 id="entry-title" style="font-weight: 300; margin-bottom: 20px;">You have a surprise!</h1>
+        <h1 id="entry-title">You have a surprise!</h1>
         <button class="tap-btn" onclick="startParty()">Tap to Open</button>
-        <button onclick="toggleEditor(true)" style="margin-top: 40px; background: none; border: 1px solid #444; color: #888; padding: 8px 15px; border-radius: 20px; cursor: pointer;">
-            ⚙️ Create Your Own Link
-        </button>
+        <button id="creator-toggle" onclick="toggleEditor(true)">⚙️ Create Your Own Link</button>
     </div>
 
     <div id="creator-ui">
         <div class="editor-card">
-            <h2 style="font-family: 'Fredoka One'; color: #ff00cc; margin-top:0;">Card Settings</h2>
+            <h2>Card Settings</h2>
             <input type="text" id="edit-name" placeholder="Friend's Name" oninput="liveUpdate()">
             <textarea id="edit-note" placeholder="Personal Note..." oninput="liveUpdate()"></textarea>
             <input type="text" id="edit-emoji" placeholder="Emoji (e.g. 🎁)" oninput="liveUpdate()">
             
-            <button class="tap-btn" style="width: 100%; margin-top: 10px; font-size: 1rem;" onclick="copyLink()">Copy Magic Link</button>
-            <button onclick="toggleEditor(false)" style="background:none; border:none; color:#aaa; margin-top:15px; cursor:pointer;">Close Preview</button>
-            <p id="copy-status" style="color: #23d5ab; font-size: 0.8rem; margin-top:10px;"></p>
+            <button class="tap-btn share-btn" onclick="copyLink()">Copy Magic Link</button>
+            <button class="close-btn" onclick="toggleEditor(false)">Close Preview</button>
+            <p id="copy-status"></p>
         </div>
     </div>
 
@@ -124,107 +35,19 @@
         <div class="card-container" onclick="flipCard()">
             <div class="card" id="birthday-card">
                 <div class="card-face front">
-                    <div id="display-emoji" style="font-size: 5rem; margin-bottom: 10px;">🎂</div>
-                    <h2 id="display-name" style="font-family: 'Pacifico'; font-size: 2.2rem; margin: 0; color: white;">Friend</h2>
-                    <p style="opacity: 0.7; font-size: 0.8rem;">Tap to read note</p>
+                    <div id="display-emoji">🎂</div>
+                    <h2 id="display-name">Friend</h2>
+                    <p class="hint">Tap to read note</p>
                 </div>
                 <div class="card-face back">
-                    <h2 style="color: #ff00cc; font-family: 'Fredoka One';">To You!</h2>
-                    <p id="display-note" style="font-size: 0.9rem; line-height: 1.5; padding: 0 10px;">
-                        Wishing you the most amazing day ever!
-                    </p>
+                    <h2 class="back-title">To You!</h2>
+                    <p id="display-note">Wishing you the most amazing day ever!</p>
+                    <div class="emoji-footer">🥳 🎈</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        // --- 1. DYNAMIC URL LOADING ---
-        const params = new URLSearchParams(window.location.search);
-        if(params.has('name')) {
-            document.getElementById('display-name').innerText = params.get('name');
-            document.getElementById('entry-title').innerText = "Surprise for " + params.get('name') + "!";
-        }
-        if(params.has('note')) document.getElementById('display-note').innerText = params.get('note');
-        if(params.has('emoji')) document.getElementById('display-emoji').innerText = params.get('emoji');
-
-        // --- 2. EDITOR LOGIC ---
-        function toggleEditor(show) {
-            const ui = document.getElementById('creator-ui');
-            const stage = document.getElementById('main-stage');
-            ui.style.display = show ? 'flex' : 'none';
-            if(show) {
-                stage.style.display = 'flex';
-                stage.style.opacity = '1';
-                stage.style.transform = 'scale(0.7)';
-            } else {
-                stage.style.transform = 'scale(1)';
-            }
-        }
-
-        function liveUpdate() {
-            const name = document.getElementById('edit-name').value;
-            const note = document.getElementById('edit-note').value;
-            const emoji = document.getElementById('edit-emoji').value;
-            
-            if(name) document.getElementById('display-name').innerText = name;
-            if(note) document.getElementById('display-note').innerText = note;
-            if(emoji) document.getElementById('display-emoji').innerText = emoji;
-
-            const card = document.getElementById('birthday-card');
-            card.classList.remove('update-pulse');
-            void card.offsetWidth; 
-            card.classList.add('update-pulse');
-        }
-
-        function copyLink() {
-            const name = encodeURIComponent(document.getElementById('edit-name').value);
-            const note = encodeURIComponent(document.getElementById('edit-note').value);
-            const emoji = encodeURIComponent(document.getElementById('edit-emoji').value);
-            
-            const link = `${window.location.origin}${window.location.pathname}?name=${name}&note=${note}&emoji=${emoji}`;
-            navigator.clipboard.writeText(link);
-            document.getElementById('copy-status').innerText = "✅ Link copied to clipboard!";
-        }
-
-        // --- 3. ORIGINAL ANIMATIONS ---
-        function startParty() {
-            document.getElementById('entry-screen').style.opacity = 0;
-            setTimeout(() => {
-                document.getElementById('entry-screen').style.display = 'none';
-                document.getElementById('main-stage').style.display = 'flex';
-                setTimeout(() => document.getElementById('main-stage').style.opacity = 1, 50);
-                initConfetti();
-            }, 800);
-        }
-
-        function flipCard() {
-            document.getElementById('birthday-card').classList.toggle('is-flipped');
-        }
-
-        // --- 4. MINI CONFETTI ENGINE ---
-        const canvas = document.getElementById('confetti-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        function initConfetti() {
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<100; i++) {
-                particles.push({
-                    x: Math.random()*canvas.width, y: Math.random()*canvas.height - canvas.height,
-                    v: Math.random()*3 + 2, s: Math.random()*5 + 2, 
-                    c: `hsl(${Math.random()*360}, 70%, 60%)`
-                });
-            }
-            render();
-        }
-        function render() {
-            ctx.clearRect(0,0,canvas.width, canvas.height);
-            particles.forEach(p => {
-                p.y += p.v; if(p.y > canvas.height) p.y = -10;
-                ctx.fillStyle = p.c; ctx.fillRect(p.x, p.y, p.s, p.s);
-            });
-            requestAnimationFrame(render);
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>

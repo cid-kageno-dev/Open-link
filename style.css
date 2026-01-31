@@ -1,0 +1,117 @@
+/* --- Reset & Layout --- */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+    margin: 0; padding: 0;
+    background: #050505;
+    overflow: hidden;
+    font-family: 'Poppins', sans-serif;
+    height: 100vh; width: 100vw;
+    color: white; perspective: 1000px;
+}
+
+/* --- Animated Background --- */
+.background-gradient {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(120deg, #1a2a6c, #b21f1f, #fdbb2d);
+    background-size: 300% 300%;
+    animation: gradientMove 15s ease infinite;
+    z-index: -2;
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* --- Screens --- */
+#entry-screen {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.92);
+    backdrop-filter: blur(10px);
+    z-index: 9999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: opacity 0.8s ease;
+}
+
+#main-stage {
+    opacity: 0; display: none;
+    height: 100%; width: 100%;
+    flex-direction: column; justify-content: center; align-items: center;
+    position: relative; transition: all 0.8s ease;
+}
+
+/* --- Buttons --- */
+.tap-btn {
+    background: linear-gradient(45deg, #ff00cc, #3333ff);
+    border: none; padding: 15px 40px; font-size: 1.2rem;
+    color: white; border-radius: 50px;
+    font-family: 'Fredoka One', cursive;
+    box-shadow: 0 0 25px rgba(255, 0, 204, 0.6);
+    cursor: pointer; text-transform: uppercase;
+}
+
+#creator-toggle {
+    margin-top: 40px; background: none; border: 1px solid #444; 
+    color: #888; padding: 8px 15px; border-radius: 20px; cursor: pointer;
+}
+
+/* --- 3D Card --- */
+.card-container { width: 85vw; max-width: 320px; aspect-ratio: 3/4; perspective: 1500px; z-index: 10; }
+
+.card { 
+    width: 100%; height: 100%; position: relative; transform-style: preserve-3d; 
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
+
+.card.is-flipped { transform: rotateY(180deg); }
+
+.card-face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; border-radius: 25px;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    padding: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.2);
+}
+
+.front { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); }
+#display-emoji { font-size: 5rem; margin-bottom: 10px; }
+#display-name { font-family: 'Pacifico'; font-size: 2.2rem; margin: 0; }
+
+.back { background: white; transform: rotateY(180deg); color: #333; }
+.back-title { color: #ff00cc; font-family: 'Fredoka One'; margin-top: 0; }
+
+/* --- Creator UI --- */
+#creator-ui {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
+    z-index: 10000; display: none; flex-direction: column;
+    align-items: center; justify-content: center; padding: 20px;
+}
+
+.editor-card {
+    background: rgba(255,255,255,0.1); padding: 25px; border-radius: 20px;
+    width: 100%; max-width: 350px; border: 1px solid rgba(255,255,255,0.2);
+    text-align: center;
+}
+
+input, textarea {
+    width: 100%; margin: 10px 0; padding: 12px; border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white;
+}
+
+.share-btn { width: 100%; margin-top: 10px; font-size: 1rem; }
+.close-btn { background:none; border:none; color:#aaa; margin-top:15px; cursor:pointer; }
+#copy-status { color: #23d5ab; font-size: 0.8rem; margin-top:10px; }
+
+/* --- Animations --- */
+.update-pulse { animation: pulseAnim 0.4s ease; }
+@keyframes pulseAnim { 
+    0% { transform: scale(1); } 
+    50% { transform: scale(1.05); } 
+    100% { transform: scale(1); } 
+}
+
+#confetti-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
